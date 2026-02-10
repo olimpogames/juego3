@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Login Juego 3</title>
+<style>
+body{
+  background:#111;
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  font-family:Arial;
+}
+.login{
+  background:#222;
+  padding:30px;
+  border-radius:10px;
+}
+input{
+  display:block;
+  margin:10px 0;
+  padding:10px;
+  width:200px;
+}
+button{
+  padding:10px;
+  width:100%;
+}
+</style>
+</head>
+
+<body>
+
+<div class="login">
+  <h2>Admin Juego 3</h2>
+  <input type="text" id="user" placeholder="Usuario">
+  <input type="password" id="pass" placeholder="Contraseña">
+  <button onclick="login()">Entrar</button>
+</div>
+
+<script>
+function login(){
+  if(user.value==="admin" && pass.value==="1234"){
+    localStorage.setItem("admin_juego3","true");
+    location.href="admin.html";
+  }else{
+    alert("Credenciales incorrectas");
+  }
+}
+</script>
+
+</body>
+</html>
