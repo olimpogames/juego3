@@ -9,10 +9,32 @@
 body{
   margin:0;
   padding:40px;
-  background:#0f172a;
+  background:
+    linear-gradient(rgba(0,0,0,.7), rgba(0,0,0,.7)),
+    url("fongo.png") center/cover fixed;
   color:white;
   font-family:Arial, Helvetica, sans-serif;
   text-align:center;
+}
+
+/* 🔘 BOTÓN ADMIN */
+.admin-btn{
+  position:fixed;
+  top:20px;
+  right:20px;
+  padding:10px 18px;
+  background:#f59e0b;
+  border:none;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:.3s;
+  z-index:1000;
+}
+
+.admin-btn:hover{
+  transform:scale(1.05);
+  background:#fbbf24;
 }
 
 h1{
@@ -30,7 +52,8 @@ h1{
 }
 
 .card{
-  background:#1e293b;
+  background:#1e293bcc;
+  backdrop-filter:blur(6px);
   padding:20px;
   border-radius:15px;
   transition:.3s;
@@ -63,6 +86,7 @@ h1{
   color:#38bdf8;
 }
 
+/* 📱 RESPONSIVE */
 @media(max-width:900px){
   .grid{
     grid-template-columns: repeat(2, 1fr);
@@ -82,13 +106,17 @@ h1{
 
 <body>
 
+<button class="admin-btn" onclick="location.href='admin.html'">
+⚙ ADMIN
+</button>
+
 <h1>🏆 RANKING JUEGO 3 🏆</h1>
 
 <div id="ranking" class="grid"></div>
 
 <script>
 
-/* 🔥 CONFIG FIREBASE NUEVO */
+/* 🔥 FIREBASE JUEGO 3 */
 firebase.initializeApp({
   apiKey: "AIzaSyDJxaVNCzl2bUpQDFpC_g4cDxZ3Y9pT-68",
   authDomain: "ranking-mitos-juego3.firebaseapp.com",
