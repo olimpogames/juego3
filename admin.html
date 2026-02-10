@@ -1,11 +1,104 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Juego 3</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  font-family:'Orbitron',sans-serif;
+  color:white;
+}
+
+.panel{
+  background:rgba(0,0,0,.7);
+  padding:50px;
+  border-radius:20px;
+  width:400px;
+  backdrop-filter:blur(10px);
+  box-shadow:0 0 40px rgba(0,255,255,.3);
+  animation:fade .6s ease;
+}
+
+@keyframes fade{
+  from{opacity:0; transform:scale(.9)}
+  to{opacity:1; transform:scale(1)}
+}
+
+h2{
+  text-align:center;
+  margin-bottom:30px;
+  letter-spacing:2px;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  margin-bottom:15px;
+  border:none;
+  border-radius:10px;
+  outline:none;
+  font-size:14px;
+}
+
+input[type="file"]{
+  background:#111;
+  color:white;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:.3s;
+  font-size:15px;
+}
+
+.btn-guardar{
+  background:#00c896;
+  color:black;
+}
+
+.btn-guardar:hover{
+  transform:scale(1.05);
+  box-shadow:0 0 20px #00c896;
+}
+
+.preview{
+  text-align:center;
+  margin-bottom:15px;
+}
+
+.preview img{
+  max-width:120px;
+  border-radius:10px;
+  margin-top:10px;
+}
+
+.mensaje{
+  text-align:center;
+  margin-top:10px;
+  font-size:14px;
+}
+</style>
 </head>
+
 <body>
 
 <script>
@@ -14,12 +107,20 @@ if(localStorage.getItem("admin_juego3")!=="true"){
 }
 </script>
 
-<h2>Panel Admin Juego 3</h2>
+<div class="panel">
+  <h2>🎮 PANEL ADMIN JUEGO 3</h2>
 
-<input id="nombre" placeholder="Nombre">
-<input id="foto" placeholder="URL Imagen">
-<input id="puntaje" type="number" placeholder="Puntaje">
-<button onclick="agregar()">Agregar</button>
+  <input id="nombre" placeholder="Nombre del jugador">
+  <input id="puntaje" type="number" placeholder="Puntaje">
+
+  <input type="file" id="imagen" accept="image/*">
+
+  <div class="preview" id="preview"></div>
+
+  <button class="btn-guardar" onclick="agregar()">Guardar Jugador</button>
+
+  <div class="mensaje" id="mensaje"></div>
+</div>
 
 <script>
 firebase.initializeApp({
@@ -27,15 +128,63 @@ firebase.initializeApp({
   authDomain: "ranking-mitos-juego3.firebaseapp.com",
   databaseURL: "https://ranking-mitos-juego3-default-rtdb.firebaseio.com",
   projectId: "ranking-mitos-juego3",
+  storageBucket: "ranking-mitos-juego3.appspot.com"
 });
 
 const db = firebase.database().ref("jugadores_juego3");
+const storage = firebase.storage();
 
+const imagenInput = document.getElementById("imagen");
+const preview = document.getElementById("preview");
+const mensaje = document.getElementById("mensaje");
+
+let archivoSeleccionado = null;
+
+/* PREVIEW */
+imagenInput.addEventListener("change", function(e){
+  archivoSeleccionado = e.target.files[0];
+
+  if(archivoSeleccionado){
+    const reader = new FileReader();
+    reader.onload = function(ev){
+      preview.innerHTML = `<img src="${ev.target.result}">`;
+    };
+    reader.readAsDataURL(archivoSeleccionado);
+  }
+});
+
+/* AGREGAR JUGADOR */
 function agregar(){
-  db.push({
-    nombre: nombre.value,
-    foto: foto.value,
-    puntaje: parseInt(puntaje.value)
+
+  if(!nombre.value || !puntaje.value || !archivoSeleccionado){
+    mensaje.innerText="⚠️ Completa todos los campos";
+    return;
+  }
+
+  mensaje.innerText="Subiendo imagen...";
+
+  const ruta = storage.ref("jugadores_juego3/" + Date.now() + "_" + archivoSeleccionado.name);
+
+  ruta.put(archivoSeleccionado)
+  .then(snapshot => snapshot.ref.getDownloadURL())
+  .then(urlImagen => {
+
+    return db.push({
+      nombre: nombre.value,
+      puntaje: parseInt(puntaje.value),
+      foto: urlImagen
+    });
+
+  })
+  .then(()=>{
+    mensaje.innerText="✅ Jugador agregado correctamente";
+    nombre.value="";
+    puntaje.value="";
+    imagenInput.value="";
+    preview.innerHTML="";
+  })
+  .catch(error=>{
+    mensaje.innerText="❌ Error: " + error.message;
   });
 }
 </script>
